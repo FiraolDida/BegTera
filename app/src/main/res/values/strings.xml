@@ -1,0 +1,66 @@
+<resources>
+    <string name="app_name">Bunagram</string>
+    <string name="login">Login</string>
+    <string name="register">Need a New Account?</string>
+    <string name="amharic">አማርኛ</string>
+    <string name="english">English</string>
+    <string name="logout">Log Out</string>
+    <string name="create">Create a New Account</string>
+    <string name="enter_phone">Enter your phone number to receive verification code.</string>
+    <string name="phone">Phone</string>
+    <string name="next">Next</string>
+    <string name="code">Code</string>
+    <string name="start">Start Messaging</string>
+    <string name="already">Already Have an Account?</string>
+    <string name="login_to">Login to your Account</string>
+    <string name="password">Password</string>
+    <string name="email">E-mail</string>
+    <string name="dont">Don\'t Have an Account? Create</string>
+    <string name="name">Display Name</string>
+    <string name="confPass">Confirm Password</string>
+    <string name="cre">Create</string>
+
+
+    <string name="settings">Account Settings</string>
+    <string name="change">CHANGE IMAGE</string>
+    <string name="change_status">UPDATE STATUS</string>
+    <string name="your_status">Your Status</string>
+    <string name="update">UPDATE</string>
+
+    <!--Internal message string-->
+    <string name="account_status">Account Status</string>
+    <string name="saving_changes">Saving Changes</string>
+    <string name="wait_update_message">Please wait while status updates</string>
+    <string name="update_error_message">An error occurred while updating status</string>
+    <string name="logging_in">Logging in</string>
+    <string name="wait_login_message">Please wait while we check your credentials</string>
+    <string name="login_error1">Fill in the input field(s)</string>
+    <string name="auth_error">Authentication failed.</string>
+    <string name="reging_user">Registering User</string>
+    <string name="reg_message">Please wait while we register your account</string>
+    <string name="pw_noMatch">Password does not match.</string>
+    <string name="reg_error1">All fields are required!</string>
+    <string name="language">Language</string>
+    <string name="all_users">All Users</string>
+    <string name="uploading">Uploading Image</string>
+    <string name="upload_wait_message">Please wait for upload to complete</string>
+    <string name="upload_success">Profile picture changed</string>
+    <string name="error_try_again">An error occurred while changing profile picture, Please try again.</string>
+    <string name="send_request">Send Friend Request</string>
+    <string name="cancel_req">Cancel Friend Request</string>
+    <string name="failed_cancelling">Failed cancelling request. Please try again</string>
+    <string name="failed_sending">Failed sending request. Please try again.</string>
+    <string name="accept_req">Accept Friend Request</string>
+    <string name="unfriend">Un-friend This Person</string>
+    <string name="decline_req">Decline Friend Request</string>
+    <string name="sure_to_decline">Are you sure you want to decline the friend request?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="sure_to_unfriend">Are you sure you want to unfriend this person?</string>
+    <string name="lastSeen">Last Seen</string>
+    <string name="type_message">Type your message</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="default_notification_channel_id">MATCHUP_CH</string>
+</resources>

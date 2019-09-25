@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "471725970951",
+    "firebase_url": "https://bunachat-76d76.firebaseio.com",
+    "project_id": "bunachat-76d76",
+    "storage_bucket": "bunachat-76d76.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:471725970951:android:b9bfcb3d4d16b031",
+        "android_client_info": {
+          "package_name": "com.quebix.bunachat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "471725970951-spbsic829k7014ocga2a1s0gru2cr4ja.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.quebix.bunachat",
+            "certificate_hash": "df7b4af238b94a7bb33d1bee01f28c259e75065b"
+          }
+        },
+        {
+          "client_id": "471725970951-7ftc05dodg0kg1ivou7ja74siu94mmvm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJYnsMEp-y00iesA8zfVYKkAKula4EaVc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "471725970951-7ftc05dodg0kg1ivou7ja74siu94mmvm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

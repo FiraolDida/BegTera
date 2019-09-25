@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#2D904E22"
+    tools:context=".ChatActivity">
+
+    <include
+        android:id="@+id/chat_app_bar"
+        layout="@layout/app_bar_layout" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:weightSum="10"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chat_app_bar"
+        app:layout_constraintVertical_bias="0.998"
+        tools:layout_editor_absoluteX="-16dp">
+
+        <ImageButton
+            android:id="@+id/btn_send_media"
+            android:layout_width="37dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:backgroundTint="#904E22"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/add" />
+
+        <EditText
+            android:id="@+id/chat_teat_field"
+            style="@android:style/Widget.DeviceDefault.EditText"
+            android:layout_width="208dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="8"
+            android:background="@drawable/chat_text_field_style"
+            android:ems="10"
+            android:hint="@string/type_message"
+            android:inputType="textPersonName"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+        <ImageButton
+            android:id="@+id/btn_send"
+            android:layout_width="28dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:backgroundTint="@android:color/transparent"
+            android:padding="10dp"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/send" />
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>
