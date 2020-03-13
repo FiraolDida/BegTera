@@ -1,10 +1,10 @@
 package com.quebix.bunachat.Activity;
 
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -32,12 +32,11 @@ import java.util.HashMap;
 public class ProfileSettingActivity extends AppCompatActivity implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
 
     private static final String TAG = "ProfileSettingActivity";
-    private Toolbar toolbar;
-    private Spinner spinner;
+    private Spinner spinner, locationSpinner;
     private EditText displayName, ageText;
     private String name, age, selectedLookingFor, selectedLocation, currentUser, interestedIn
-            , gender;
-    private ImageButton saveButton, cancelButton;
+            , gender, usersLocation;
+    private Button saveButton, backBtn;
     private RadioGroup lookingFor, location;
     private DatabaseReference databaseReference;
     private FirebaseAuth firebaseAuth;
@@ -51,34 +50,42 @@ public class ProfileSettingActivity extends AppCompatActivity implements View.On
         currentUser = firebaseAuth.getCurrentUser().getUid();
         databaseReference = FirebaseDatabase.getInstance().getReference().child("Users");
 
-        toolbar = findViewById(R.id.profileSettingToolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Profile Setting");
-
         currentUserGender();
 
         spinner = findViewById(R.id.spinner);
-        setSpinner();
+        locationSpinner = findViewById(R.id.locationSpinner);
+        setSpinnerForInterest();
+        setLocationSpinner();
         displayName = findViewById(R.id.displayName);
         ageText = findViewById(R.id.age);
         saveButton = findViewById(R.id.saveButton);
-        cancelButton = findViewById(R.id.cancelButton);
+        backBtn = findViewById(R.id.backButton);
         lookingFor = findViewById(R.id.lookingForRadioGroup);
-        location = findViewById(R.id.locationRadioGroup);
+//        location = findViewById(R.id.locationRadioGroup);
 
         saveButton.setOnClickListener(this);
-        cancelButton.setOnClickListener(this);
+        backBtn.setOnClickListener(this);
 
         lookingFor.setOnCheckedChangeListener(this);
-        location.setOnCheckedChangeListener(this);
+//        location.setOnCheckedChangeListener(this);
     }
 
-    private void setSpinner() {
+    private void setSpinnerForInterest() {
         String[] arraySpinner = new String[] {"Select one", "Female", "Male"};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, arraySpinner);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
+    }
+
+    private void setLocationSpinner() {
+        String[] arraySpinner = new String[] {"Select your region", "Afar", "Amhara",
+                "Benishangul Gumuz", "Gambella", "Harar", "Oromia", "Somali",
+                "Southern Nation, Nationalities and People", "Tigray"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, arraySpinner);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        locationSpinner.setAdapter(adapter);
     }
 
     @Override
@@ -89,7 +96,7 @@ public class ProfileSettingActivity extends AppCompatActivity implements View.On
                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
                 finish();
                 break;
-            case R.id.cancelButton:
+            case R.id.backButton:
                 startActivity(new Intent(this, MainActivity.class));
                 finish();
                 break;
@@ -110,15 +117,15 @@ public class ProfileSettingActivity extends AppCompatActivity implements View.On
             case R.id.friendshipRadioButton:
                 selectedLookingFor = "Friendship";
                 break;
-            case R.id.nearbyRadioButton:
-                selectedLocation = "Nearby";
-                break;
-            case R.id.remoteRadioButton:
-                selectedLocation = "Remote";
-                break;
-            case R.id.anywhereRadioButton3:
-                selectedLocation = "Anywhere";
-                break;
+//            case R.id.nearbyRadioButton:
+//                selectedLocation = "Nearby";
+//                break;
+//            case R.id.remoteRadioButton:
+//                selectedLocation = "Remote";
+//                break;
+//            case R.id.anywhereRadioButton3:
+//                selectedLocation = "Anywhere";
+//                break;
         }
     }
 
@@ -126,19 +133,20 @@ public class ProfileSettingActivity extends AppCompatActivity implements View.On
         name = displayName.getText().toString();
         age = ageText.getText().toString();
         interestedIn = spinner.getSelectedItem().toString();
+        usersLocation = locationSpinner.getSelectedItem().toString();
 
         Log.d(TAG, "Name: " + name + "\nage: " + age + "\nlooking for: " + selectedLookingFor
-            + "\nlocation: " + selectedLocation + "\nInterestedIn: " + interestedIn);
+            + "\nlocation: " + usersLocation + "\nInterestedIn: " + interestedIn);
 
         Users userProfile = new Users(
-                name, age, selectedLookingFor, interestedIn, selectedLocation
+                name, age, selectedLookingFor, interestedIn, usersLocation
         );
         HashMap<String, Object> profile = new HashMap<>();
         profile.put("name", name);
         profile.put("age", age);
         profile.put("lookingFor", selectedLookingFor);
         profile.put("interestedIn", interestedIn);
-        profile.put("location", selectedLocation);
+        profile.put("location", usersLocation);
         profile.put("forToday", "false");
 
         databaseReference.child(gender).child(currentUser).updateChildren(profile)

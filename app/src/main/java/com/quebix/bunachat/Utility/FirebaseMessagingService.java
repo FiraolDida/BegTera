@@ -5,8 +5,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.graphics.Color;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.NotificationCompat;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.firebase.messaging.RemoteMessage;
@@ -22,8 +22,10 @@ public class FirebaseMessagingService extends com.quebix.bunachat.FirebaseMessag
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
 
-        showNotification(remoteMessage.getNotification().getTitle(), 
-                remoteMessage.getNotification().getBody());
+        if (remoteMessage.getNotification() != null){
+            showNotification(remoteMessage.getNotification().getTitle(),
+                    remoteMessage.getNotification().getBody());
+        }
     }
 
     private void showNotification(String title, String body) {

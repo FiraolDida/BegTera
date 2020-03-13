@@ -1,55 +1,53 @@
 package com.quebix.bunachat;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.quebix.bunachat.Fragment.UsersFragment;
+import com.quebix.bunachat.Model.Chat;
+
+import java.util.ArrayList;
+import java.util.List;
+
 class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+    private final static String TAG = "SectionsPagerAdapter";
+    private final List<Fragment> fragList=new ArrayList<>();
+    private final List<String> fragTitle = new ArrayList<>();
+
     public SectionsPagerAdapter(FragmentManager fm) {
         super(fm);
     }
 
     @Override
     public Fragment getItem(int position) {
-
-        switch (position){
-            case 0:
-                MatchupFragment matchupFragment = new MatchupFragment();
-                return matchupFragment;
-            case 1:
-                RequestsFragment requestsFragment = new RequestsFragment();
-                return requestsFragment;
-            case 2:
-                ChatsFragment chatsFragment = new ChatsFragment();
-                return chatsFragment;
-            case 3:
-                FriendsFragment friendsFragment = new FriendsFragment();
-                return  friendsFragment;
-
-                default:
-                    return null;
-        }
-
+        return fragList.get(position);
     }
 
     @Override
     public int getCount() {
-        return 4;
+        return fragTitle.size();
     }
 
     public CharSequence getPageTitle(int position){
-        switch (position){
-            case 0:
-                return "MATCH-UP";
-            case 1:
-                return "REQUESTS";
-            case 2:
-                return "CHATS";
-            case 3:
-                return "FRIENDS";
-                default:
-                    return null;
-        }
+        return fragTitle.get(position);
     }
+
+    public void addFrag(Fragment f, String s){
+        fragList.add(f);
+        fragTitle.add(s);
+    }
+
 }

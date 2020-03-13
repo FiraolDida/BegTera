@@ -4,12 +4,15 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -17,15 +20,16 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.quebix.bunachat.Activity.ProfileSettingActivity;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
@@ -41,16 +45,21 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import id.zelory.compressor.Compressor;
 
 public class SettingsActivity extends AppCompatActivity {
+
+    private static final String TAG = "SettingsActivity";
     private DatabaseReference mUserDatabase;
     private FirebaseUser mCurrentUser;
     private StorageReference mImageStorage;
     private CircleImageView mDisplayImage;
-    private TextView mName;
+    private TextView mName, lookingFor, locationTextView;
     private TextView mStatus;
-    private ImageButton btnUpdateStatus;
-    private ImageButton btnChangeImage;
+    private Button btnUpdateStatus;
+    private ImageView btnChangeImage, backBtn;
     private ProgressDialog mProgressDialog;
     private static final int GALLERY_PICK= 1;
+    private String userSex, oSex, currentUser, info, age, looking_for, location;
+    private Button editProfile;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,39 +69,20 @@ public class SettingsActivity extends AppCompatActivity {
         mStatus = findViewById(R.id.status_text);
         btnUpdateStatus = findViewById(R.id.btn_change_status);
         btnChangeImage = findViewById(R.id.btn_change_image);
+        editProfile = findViewById(R.id.editProfileAS);
+        lookingFor = findViewById(R.id.lookingFor);
+        locationTextView = findViewById(R.id.location);
+        backBtn = findViewById(R.id.backBtn);
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
-        String uid = mCurrentUser.getUid();
-        mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(uid);
+        currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
+
         mUserDatabase.keepSynced(true);
         mImageStorage = FirebaseStorage.getInstance().getReference();
-        mUserDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String name = dataSnapshot.child("name").getValue().toString();
-                final String image = dataSnapshot.child("image").getValue().toString();
-                String status = dataSnapshot.child("status").getValue().toString();
-                String thumb_image = dataSnapshot.child("thumb_image").getValue().toString();
-                mName.setText(name);
-                mStatus.setText(status);
-                if(!image.equals("default")){
-                    Picasso.with(SettingsActivity.this).load(image).networkPolicy(NetworkPolicy.OFFLINE)
-                            .placeholder(R.drawable.default_avatar).into(mDisplayImage, new Callback() {
-                        @Override
-                        public void onSuccess() {
 
-                        }
+        usersGender();
 
-                        @Override
-                        public void onError() {
-                            Picasso.with(SettingsActivity.this).load(image).placeholder(R.drawable.default_avatar).into(mDisplayImage);
-                        }
-                    });
-                }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        });
         btnChangeImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -111,7 +101,25 @@ public class SettingsActivity extends AppCompatActivity {
                 startActivity(statusIntent);
             }
         });
+
+        editProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(SettingsActivity.this, ProfileSettingActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent startIntent = new Intent(SettingsActivity.this, MainActivity.class);
+                startActivity(startIntent);
+                finish();
+            }
+        });
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -159,60 +167,60 @@ public class SettingsActivity extends AppCompatActivity {
                 filepath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                        if(task.isSuccessful()) {
-                            filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    if(task.isSuccessful()) {
+                        filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                            final String download_uri = uri.toString();
+
+                            UploadTask uploadTask = thumb_filepath.putBytes(thumb_byte);
+                            uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                                 @Override
-                                public void onSuccess(Uri uri) {
-                                    final String download_uri = uri.toString();
-
-                                    UploadTask uploadTask = thumb_filepath.putBytes(thumb_byte);
-                                    uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> thumb_task) {
+                                    if(thumb_task.isSuccessful()){
+                                    thumb_filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                         @Override
-                                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> thumb_task) {
+                                        public void onSuccess(Uri uri) {
+                                            final String thumb_downloadUri = uri.toString();
 
-                                            if(thumb_task.isSuccessful()){
-                                                thumb_filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                                    @Override
-                                                    public void onSuccess(Uri uri) {
-                                                        final String thumb_downloadUri = uri.toString();
+                                            Map update_hashmap = new HashMap();
+                                            update_hashmap.put("image", download_uri);
+                                            update_hashmap.put("thumb_image", thumb_downloadUri);
+                                            mUserDatabase.child(userSex).child(currentUser).updateChildren(update_hashmap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                if(task.isSuccessful()){
+                                                    mProgressDialog.dismiss();
+                                                    Toast.makeText(SettingsActivity.this, getString(R.string.upload_success), Toast.LENGTH_SHORT).show();
+                                                }
+                                                else{
+                                                    mProgressDialog.dismiss();
+                                                    Toast.makeText(SettingsActivity.this, getString(R.string.error_try_again), Toast.LENGTH_LONG).show();
+                                                }
+                                                }
+                                            });
 
-                                                        Map update_hashmap = new HashMap();
-                                                        update_hashmap.put("image", download_uri);
-                                                        update_hashmap.put("thumb_image", thumb_downloadUri);
-                                                        mUserDatabase.updateChildren(update_hashmap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                            @Override
-                                                            public void onComplete(@NonNull Task<Void> task) {
-                                                                if(task.isSuccessful()){
-                                                                    mProgressDialog.dismiss();
-                                                                    Toast.makeText(SettingsActivity.this, getString(R.string.upload_success), Toast.LENGTH_SHORT).show();
-                                                                }
-                                                                else{
-                                                                    mProgressDialog.dismiss();
-                                                                    Toast.makeText(SettingsActivity.this, getString(R.string.error_try_again), Toast.LENGTH_LONG).show();
-                                                                }
-                                                            }
-                                                        });
-
-                                                    }
-                                                });
-                                            }else{
-                                                mProgressDialog.dismiss();
-                                                Toast.makeText(SettingsActivity.this, getString(R.string.error_try_again), Toast.LENGTH_SHORT).show();
-                                            }
                                         }
                                     });
+                                }else{
+                                    mProgressDialog.dismiss();
+                                    Toast.makeText(SettingsActivity.this, getString(R.string.error_try_again), Toast.LENGTH_SHORT).show();
+                                }
                                 }
                             });
-                        }
-                        else{
-                            mProgressDialog.dismiss();
-                            Toast.makeText(SettingsActivity.this, getString(R.string.error_try_again), Toast.LENGTH_SHORT).show();
-                        }
+                            }
+                        });
+                    }
+                    else{
+                        mProgressDialog.dismiss();
+                        Toast.makeText(SettingsActivity.this, getString(R.string.error_try_again), Toast.LENGTH_SHORT).show();
+                    }
                     }
                 });
             }
         }
     }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -223,6 +231,132 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         mUserDatabase.child("online").setValue("false");
+    }
+
+    private void usersGender(){
+        final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        Log.d(TAG, "currentUserGender: " + firebaseUser.getUid());
+
+        DatabaseReference maleReference = FirebaseDatabase.getInstance().getReference()
+                .child("Users").child("Male");
+
+        maleReference.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if (dataSnapshot.getKey().equals(firebaseUser.getUid())){
+                    userSex = "Male";
+                    oSex = "Female";
+                    Log.d(TAG, "userSex: " + userSex + ", oSex: " + oSex);
+                    fetchUserData(userSex);
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.d(TAG, "onCancelled: " + databaseError.getMessage());
+            }
+        });
+
+        DatabaseReference femaleReference = FirebaseDatabase.getInstance().getReference()
+                .child("Users").child("Female");
+
+        femaleReference.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if (dataSnapshot.getKey().equals(firebaseUser.getUid())){
+                    userSex = "Female";
+                    oSex = "Male";
+                    Log.d(TAG, "userSex: " + userSex + ", oSex: " + oSex);
+                    fetchUserData(userSex);
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.d(TAG, "onCancelled: " + databaseError.getMessage());
+            }
+        });
+    }
+
+    private void fetchUserData(final String gender){
+        mUserDatabase.child(gender).child(currentUser).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChild("name") &&
+                        dataSnapshot.hasChild("age") &&
+                        dataSnapshot.hasChild("interestedIn") &&
+                        dataSnapshot.hasChild("lookingFor") &&
+                        dataSnapshot.hasChild("location")){
+
+                    Log.d(TAG, "onDataChange: " + dataSnapshot.getValue());
+                    String name = dataSnapshot.child("name").getValue().toString();
+                    age = dataSnapshot.child("age").getValue().toString();
+                    location = dataSnapshot.child("location").getValue().toString();
+                    info = name + ", " + userSex + ", " + age;
+                    looking_for = dataSnapshot.child("lookingFor").getValue().toString();
+                    String lookingForInfo = oSex + ", " + looking_for;
+                    final String image = dataSnapshot.child("image").getValue().toString();
+                    String status = dataSnapshot.child("status").getValue().toString();
+                    String thumb_image = dataSnapshot.child("thumb_image").getValue().toString();
+                    mName.setText(info);
+                    lookingFor.setText(lookingForInfo);
+                    mStatus.setText(status);
+                    locationTextView.setText(location);
+                    if(!image.equals("default")){
+                        Picasso.with(SettingsActivity.this).load(image).networkPolicy(NetworkPolicy.OFFLINE)
+                                .placeholder(R.drawable.default_avatar).into(mDisplayImage, new Callback() {
+                            @Override
+                            public void onSuccess() {
+
+                            }
+
+                            @Override
+                            public void onError() {
+                                Picasso.with(SettingsActivity.this).load(image).placeholder(R.drawable.default_avatar).into(mDisplayImage);
+                            }
+                        });
+                    }
+                } else {
+                    Log.d(TAG, "complete your profile please!");
+                    Toast.makeText(SettingsActivity.this, "Complete your profile!",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.d(TAG, "onCancelled: " + databaseError);
+            }
+        });
     }
 }
 

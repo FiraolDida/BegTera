@@ -3,6 +3,7 @@ package com.quebix.bunachat.Model;
 public class Matchup{
     private String image, fullName, age, location, date, userId;
     private Boolean flag;
+    private int testImage;
 
     public Matchup() {}
 
@@ -14,19 +15,14 @@ public class Matchup{
         this.location = location;
     }
 
-    public Matchup(String fullName, String age, String location) {
+    public Matchup(int testImage, String fullName, String age, String location) {
+        this.testImage = testImage;
         this.fullName = fullName;
         this.age = age;
         this.location = location;
     }
 
-    public Matchup(String fullName, Boolean flag) {
-        this.fullName = fullName;
-        this.flag = flag;
-    }
-
-    public Matchup(String fullName, String date) {
-        this.fullName = fullName;
+    public Matchup(String date){
         this.date = date;
     }
 
@@ -84,5 +80,13 @@ public class Matchup{
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public int getTestImage() {
+        return testImage;
+    }
+
+    public void setTestImage(int testImage) {
+        this.testImage = testImage;
     }
 }

@@ -2,12 +2,16 @@ package com.quebix.bunachat;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,16 +31,18 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private ProgressDialog mProgressDialog;
+    private Spinner genderSpinner;
+    private String gender;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        ImageButton btnBack = findViewById(R.id.btn_back);
-        TextView btnAlready = findViewById(R.id.btn_already);
+        Button btnBack = findViewById(R.id.btn_back);
+        Button btnAlready = findViewById(R.id.login);
 
-        ImageButton btnCreate = findViewById(R.id.btn_create);
+        Button btnCreate = findViewById(R.id.btn_create);
 
         mProgressDialog = new ProgressDialog(this);
 
@@ -45,7 +51,8 @@ public class RegisterActivity extends AppCompatActivity {
         final EditText fieldPass = findViewById(R.id.pass_reg_field);
         final EditText fieldConfPass = findViewById(R.id.confPass_reg_field);
 
-        final EditText fieldGender = findViewById(R.id.gender_reg_field);
+        genderSpinner = findViewById(R.id.spinnerRA);
+        setGenderSpinner();
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -76,10 +83,10 @@ public class RegisterActivity extends AppCompatActivity {
                 String email = fieldEmail.getText().toString();
                 String password = fieldPass.getText().toString();
                 String confPass = fieldConfPass.getText().toString();
-                String gender = fieldGender.getText().toString();
+                gender = genderSpinner.getSelectedItem().toString();
 
                 if(display_name.length()!=0 && email.length()!=0 && password.length()!=0 &&
-                        confPass.length()!=0 && gender.length() != 0){
+                        confPass.length()!=0 && !gender.equals("Select your gender")){
                     if(password.equals(confPass)){
                         mProgressDialog.setTitle(getString(R.string.reging_user));
                         mProgressDialog.setMessage(getString(R.string.reg_message));
@@ -100,18 +107,24 @@ public class RegisterActivity extends AppCompatActivity {
 
     }
 
-    private void registerUser(final String display_name, String email, String password, final String gender) {
+    private void setGenderSpinner() {
+        String[] arraySpinner = new String[] {"Select your gender", "Female", "Male"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, arraySpinner);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        genderSpinner.setAdapter(adapter);
+    }
 
+    private void registerUser(final String display_name, String email, String password,
+                              final String gender) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-
                             FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                             String uid = currentUser.getUid();
                             String deviceToken = FirebaseInstanceId.getInstance().getToken();
-
 
                             mDatabase = FirebaseDatabase.getInstance().getReference().child("Users")
                                     .child(gender).child(uid);
@@ -142,6 +155,7 @@ public class RegisterActivity extends AppCompatActivity {
                             mProgressDialog.hide();
                             Toast.makeText(RegisterActivity.this, getString(R.string.auth_error),
                                     Toast.LENGTH_SHORT).show();
+                            Log.d("RegisterActivity", "onComplete: " + task.getException());
                         }
                     }
                 });
